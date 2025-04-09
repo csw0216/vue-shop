@@ -16,9 +16,17 @@
     "vue-router": "^4.5.0"
   },
   "devDependencies": {
+    "@element-plus/icons-vue": "^2.3.1",
+    "@iconify-json/ep": "^1.2.2",
+    "@iconify-json/fa": "^1.2.1",
+    "@iconify-json/wi": "^1.2.1",
+    "@iconify/json": "^2.2.324",
     "@vitejs/plugin-vue": "^5.2.3",
+    "less": "^4.3.0",
     "prettier": "3.5.3",
     "unplugin-auto-import": "^19.1.2",
+    "unplugin-element-plus": "^0.9.1",
+    "unplugin-icons": "^22.1.0",
     "unplugin-vue-components": "^28.4.1",
     "vite": "^6.2.4",
     "vite-plugin-vue-devtools": "^7.7.2"
