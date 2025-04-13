@@ -70,10 +70,8 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: 'Welcome'
-}
+<script setup>
+
 </script>
 
 <style lang="less" scoped>

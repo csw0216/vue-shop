@@ -6,15 +6,17 @@
                 <img src="../assets/logo.png" alt="" />
             </div>
             <!-- 表单提交区域 -->
-            <el-form label-width="0px" class="login_form" :model="loginForm">
+            <!-- 用rules和prop进行表单校验 -->
+            <el-form label-width="0px" :rules="loginFormRules" class="login_form" ref="loginFormRef" status-icon
+                :model="loginForm">
                 <!--        用户名-->
-                <el-form-item>
+                <el-form-item prop="username">
                     <el-input v-model="loginForm.username" placeholder="Please Input" prefix-icon="UserFilled">
 
                     </el-input>
                 </el-form-item>
                 <!--        密码-->
-                <el-form-item>
+                <el-form-item prop="password">
 
                     <el-input type="password" v-model="loginForm.password" prefix-icon="Lock">
                     </el-input>
@@ -30,17 +32,30 @@
 </template>
 
 <script setup>
+// 创建响应式对象
+import { ref, reactive } from 'vue'
+import { ElMessage } from 'element-plus'
+import { useRouter } from 'vue-router'
+// 从父组件接收数据使用的
+// 通过 defineProps 定义的 props 是只读的
+// defineProps({
 
-const props = defineProps({
-    loginLoading: false
+// });
 
-});
-//  loginLoading = false// 登录限制
-const loginForm = {
+
+// 使用网络请求封装的接口
+import api from "../api/index.js"
+import axios from "axios"
+
+const router = useRouter()
+const loginLoading = ref(false);// 登录限制
+const loginFormRef = ref(null)
+const loginForm = reactive({
     // 登录的表单数据的绑定对象
-    username: 'admin',
-    password: '123456'
-}
+    username: '',
+    password: ''
+});
+
 const loginFormRules = {
     // 验证用户名是否合法
     username: [
@@ -54,31 +69,47 @@ const loginFormRules = {
     ]
 }
 
-function resetLoginForm() {
-    // 点击重置按钮,重置登录表单
-    // this.$refs[loginFormRef].resetFields()
-    this.$refs.loginFormRef.resetFields()
+// 重置表单
+const resetLoginForm = () => {
+    loginFormRef.value.resetFields()
+    ElMessage.info('表单已重置')
 }
 
-function login() {
-    this.loginLoading = true
-    this.$refs.loginFormRef.validate(async valid => {
+
+const login = () => {
+    loginLoading.value = true
+    loginFormRef.value.validate(async valid => {
         if (!valid) {
-            return (loginLoading = false)
+            loginLoading.value = false
+            // console.log("空白")
+            return;
         }
-        const { data: res } = await this.$http.post('login', loginForm)
-        if (res.meta.status !== 200) {
-            loginLoading = false
-            return this.$message.error('登录失败 帐号或密码错误!')
-        }
-        this.$message.success('登录成功!')
-        // 1. 将登录成功之后的 token,保存到客户端的 sessionStorage(会话机制/只在当前页面生效)中 localStorage(持久话机制/关闭页面也不会忘记数据)
-        //   1.1 项目中除了登录之外的API接口,必须在登录之后才能访问
-        //   1.2 token 只应在当前网站打开期间生效, 所以将 token 保存在 sessionStorage中
-        window.sessionStorage.setItem('token', res.data.token)
+        await api.getLogin(loginForm).then(res => {
+            // console.log(res.data);
+            if (res.data.status !== 200) {
+                loginLoading.value = false
+                return ElMessage.warning('登录失败 帐号或密码错误!')
+            } else {
+                ElMessage.success('登录成功!')
+                // 1. 将登录成功之后的 token,保存到客户端的 sessionStorage(会话机制/只在当前页面生效)中 localStorage(持久话机制/关闭页面也不会忘记数据)
+                //   1.1 项目中除了登录之外的API接口,必须在登录之后才能访问
+                //   1.2 token 只应在当前网站打开期间生效, 所以将 token 保存在 sessionStorage中
+                window.sessionStorage.setItem('token', res.data.data.token)
+            }
+        })
+
+
         // 2. 通过编程式路由导航跳转到后台主页,路由地址是 /home
-        this.$router.push('/home')
-        this.loginLoading = false
+        const navigationResult = await router.push('/home')
+        if (navigationResult) {
+            // 导航被阻止
+            ElMessage.error('跳转失败!')
+        } else {
+            // 导航成功 (包括重新导航的情况)
+            // this.isMenuOpen = false
+            ElMessage.success('跳转成功!')
+        }
+        loginLoading.value = false
     })
 }
 

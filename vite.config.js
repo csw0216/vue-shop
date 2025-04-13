@@ -13,6 +13,9 @@ import IconsResolver from 'unplugin-icons/resolver'
 import Inspect from 'vite-plugin-inspect'
 // https://vite.dev/config/
 export default defineConfig({
+  define: {
+    'process.env': {}
+  },
   plugins: [
     vue(),
     vueDevTools(),
