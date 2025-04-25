@@ -66,6 +66,7 @@ const instance = axios.create({
 // 将拦截器添加到axios的自定义实例
 // request发送
 instance.interceptors.request.use(config=>{
+  // console.log(config)
   //   if (config.method === "post") { //对post请求额外做处理,在拦截器里做格式转换
   //       config.data=qs.stringify(config.data)
   // }
@@ -74,7 +75,7 @@ instance.interceptors.request.use(config=>{
   // 不需要添加token的api
   const whiteUrl = ['/login']
   if (token && !whiteUrl.includes(config.url)) {
-        config.headers['x-token'] = token
+        config.headers['Authorization'] = token
     }
     return config;
   }, error=>{
@@ -83,7 +84,7 @@ instance.interceptors.request.use(config=>{
 
 // response响应
 instance.interceptors.response.use(response=>{
-  console.log(response)
+  // console.log(response)
     return response.status===200?Promise.resolve(response):Promise.reject(response);
   }, error=>{
   // const { response } = error;

@@ -4,6 +4,7 @@ const base = {
     // 放置多个不同的请求数据的url，在index.js中不同方法访问不同路径
   url: '/user',
   loginUrl: '/login',
+  menuUrl: '/menus',
 
   // `method` 是创建请求时使用的方法
   // method: 'get', // 默认是 get

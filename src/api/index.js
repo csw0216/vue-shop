@@ -12,10 +12,17 @@ const api = {
     // 可以添加多个方法， 用于获取各种数据
     getLogin(data) {
         return axios.post(path.loginUrl, data,{
-  headers: {
-    'Content-Type': 'application/json' // 明确指定 JSON 格式
-  }
-});
+          headers: {
+            'Content-Type': 'application/json' // 明确指定 JSON 格式
+          }
+        });
+    },
+    getMenuList() {
+        return axios.get(path.menuUrl, {
+          headers: {
+            'Content-Type': 'application/json' // 明确指定 JSON 格式
+          }
+        });
     }
 }
 

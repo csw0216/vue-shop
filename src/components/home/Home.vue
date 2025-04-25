@@ -13,25 +13,29 @@
       <el-aside :width="isCollapse ? '61px' : '200px'">
         <div class="toggle-button" @click="toggleCollpase">|||</div>
         <!-- 侧边栏菜单区域 -->
-        <el-menu background-color="#333744" text-color="#fff" active-text-color="#409EFF" :unique-opened="true"
-          :collapse="isCollapse" :collapse-transition="false" :router="true" :default-active="activePath">
+
+        <el-menu background-color="#333744" text-color="#fff" active-text-color="#ffd04b" :unique-opened="true"
+          :collapse="isCollapse" collapse-transition :router="true" :default-active="activePath">
           <!-- 一级菜单 -->
-          <el-sub-menu :index="item.id" v-for="item in menuList" :key="item.id">
+          <el-sub-menu :index="item.id + ''" v-for="item in menuList" :key="item.id">
             <!-- 一级菜单的模板区域 -->
-            <template slot="title">
+            <template #title>
               <!-- 图标 -->
-              <!-- <i :class="iconsObj[item.id]"></i> -->
+              <el-icon>
+                <Menu />
+              </el-icon>
               <!-- 文本 -->
-              <!-- <span>{{ item.authName }}</span> -->
+              <span>{{ item.authName }}</span>
+              <!-- <span>pne</span> -->
             </template>
             <!-- 二级菜单 -->
-            <el-menu-item :index="'/' + sunItem.path" v-for="sunItem in item.children" :key="sunItem.id"
-              @click="saveActivePath('/' + sunItem.path)">
-              <template slot="title">
+            <el-menu-item v-for="sonItem in item.children" :index="'/' + sonItem.path" :key="sonItem.id"
+              @click="saveActivePath('/' + sonItem.path)">
+              <template #title>
                 <!-- 二级菜单的模板区域 -->
-                <i prefix-icon="menu"></i>
+                <!-- <i prefix-icon="menu"></i> -->
                 <!-- 图标 -->
-                <span>{{ sunItem.authName }}</span>
+                <span>{{ sonItem.authName }}</span>
                 <!-- 文本 -->
               </template>
             </el-menu-item>
@@ -41,6 +45,7 @@
       <!-- 右侧内容主题 -->
       <el-main>
         <!-- 路由占位符 -->
+        <!-- <p>{{ menuList }}</p> -->
         <router-view></router-view>
       </el-main>
     </el-container>
@@ -51,33 +56,24 @@
 import { reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import axios from 'axios'
-// import { onCreated } from "vue"
+import api from "@/api/index.js"
+import { onMounted } from "vue"
 
 const router = useRouter()
 // 左侧菜单数据
-const menuList = reactive([
-  {
-    id: 1,
-    name: '糖醋排骨'
-  },
-  {
-    id: 2,
-    name: '111糖醋排骨'
-  }
-])
+const menuList = reactive([])
 const isCollapse = ref(false) // 是否折叠属性
 const activePath = ref('/welcome')
 
 const welcome = {
   authName: '欢迎光临',
-  id: 147,
+  id: 0,
   order: 1,
   path: '/welcome',
   children: [
     {
       authName: 'Welcome',
-      id: 124,
+      id: 1,
       order: 1,
       path: 'welcome',
       children: []
@@ -85,37 +81,42 @@ const welcome = {
   ]
 }
 
-// onCreated(() => {
-//   this.getMenuList()
-//   console.log(this.activePath)
-//   const path = window.sessionStorage.getItem('activePath')
-//   if (path) {
-//     activePath = path
-//   } else {
-//     activePath = '/welcome'
-//   }
-// })
+onMounted(() => {
+  getMenuList()
+  // console.log(activePath)
+  const path = window.sessionStorage.getItem('activePath')
+  if (path) {
+    activePath.value = path
+  } else {
+    activePath.value = '/welcome'
+  }
+})
 const logout = () => {
-
   window.sessionStorage.clear()
   router.push('/login')
 }
 // 获取所有的菜单
-const getMenuList = () => {
-  const { data: res } = axios.get('/menus')
-  if (res.meta.status !== 200) return ElMessage.error(res.meta.msg)
-  ElMessage.success(res.meta.msg)
-  res.data.unshift(welcome)
-  menuList = res.data
-  console.log(res, 'menus')
+const getMenuList = async () => {
+  await api.getMenuList().then(res => {
+    if (res.data.status !== 200) {
+      ElMessage.error(res.meta.message)
+      router.push('/login')
+    }
+    // menuList.push(res.data.data.menuList)
+    // menuList.unshift(welcome)
+    // console.log(res.data.data.menuList)
+    menuList.push(welcome, ...res.data.data.menuList)
+    // console.log(toRaw(menuList))
+    // console.log(menuList)
+  })
 }
 // 点击按钮,切换菜单的折叠和展开
 const toggleCollpase = () => {
-  isCollapse = !isCollapse
+  isCollapse.value = !isCollapse.value
 }
-const saveActivePath = (activePath) => {
-  window.sessionStorage.setItem('activePath', activePath)
-  activePath = activePath
+const saveActivePath = (path) => {
+  window.sessionStorage.setItem('activePath', path)
+  activePath.value = path
   // console.log(this.$route.path)
 }
 
@@ -158,6 +159,7 @@ const saveActivePath = (activePath) => {
     }
 
     span {
+      color: #fff;
       margin-left: 15px;
     }
   }
@@ -175,9 +177,6 @@ const saveActivePath = (activePath) => {
   background-color: #eaedf1;
 }
 
-.iconfont {
-  padding-right: 10px;
-}
 
 .toggle-button {
   background: #4a5064;

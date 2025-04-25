@@ -18,7 +18,7 @@ const router = createRouter({
       path: '/home',
       name: 'home',
       component: () => import('@/components/home/Home.vue'),
-      // redirect: '/welcome',
+      redirect: '/welcome',
     children: [
       {
         path: '/welcome',
@@ -76,7 +76,7 @@ router.beforeEach((to, from) => {
   if (to.path === '/login') return true
   // 获取token
   const token = window.sessionStorage.getItem('token')
-  if (!token) return '/login'
+  if (to.path.startsWith('/home') && !token) return '/login'
   return
 })
 

@@ -42,10 +42,8 @@ import { useRouter } from 'vue-router'
 
 // });
 
-
 // 使用网络请求封装的接口
 import api from "../api/index.js"
-import axios from "axios"
 
 const router = useRouter()
 const loginLoading = ref(false);// 登录限制
@@ -75,13 +73,11 @@ const resetLoginForm = () => {
     ElMessage.info('表单已重置')
 }
 
-
 const login = () => {
     loginLoading.value = true
     loginFormRef.value.validate(async valid => {
         if (!valid) {
             loginLoading.value = false
-            // console.log("空白")
             return;
         }
         await api.getLogin(loginForm).then(res => {
@@ -98,7 +94,6 @@ const login = () => {
             }
         })
 
-
         // 2. 通过编程式路由导航跳转到后台主页,路由地址是 /home
         const navigationResult = await router.push('/home')
         if (navigationResult) {
@@ -112,10 +107,6 @@ const login = () => {
         loginLoading.value = false
     })
 }
-
-
-
-
 
 
 </script>
